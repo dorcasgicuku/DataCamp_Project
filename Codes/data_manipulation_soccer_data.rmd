@@ -1,0 +1,97 @@
+---
+title: "Data Manipulation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##  Data Manipulation in R; A Case Study of Soccer Data
+
+### Project Description
+
+Your boss at Crunching Numbers needs you to determine which match and stadium had the highest attendance during the 2019 FIFA Women's World Cup. Use your data import and cleaning skills to dig through the dirty data, clean it up, and present your boss with polished graphs.
+
+These data come from the online 2019 FIFA Women's World Cup match reports.
+
+
+### Project Tasks
+
+1. Importing data
+2. Removing rows of NA
+3. Replacing NA
+4. separate() and replace_na()
+5. Plotting for outliers
+6. What to do with the outlier?
+7. A pretty boxplot
+8. A pretty line plot
+
+
+```{r libraries ,message= FALSE, warning=FALSE, results=FALSE}
+install.packages("readr",repos = "http://cran.us.r-project.org")
+install.packages("dplyr",repos = "http://cran.us.r-project.org")
+
+library(readr)
+library(dplyr)
+
+```
+```{r Data}
+
+soccer_data<-read_csv("D:\\Work\\Jenga School\\JAD_402\\soccer_data.csv",
+                      col_types =cols(Venue= col_factor()) 
+                        )
+str(soccer_data)
+glimpse(soccer_data)
+summary(soccer_data)
+dim(soccer_data)
+head(soccer_data, 15)
+sum(is.na(soccer_data))
+
+```
+```{r NA Values}
+
+# 1. Rows NA
+#2. Missing data values
+
+install.packages("tidyr")
+library(tidyr)
+
+tidy_soccer_data<-soccer_data %>%  rename_all(tolower)%>%filter(!is.na(round)) 
+str(tidy_soccer_data)
+
+sum(is.na(tidy_soccer_data))
+
+```
+```{r Replacing NA}
+index_venue<-which(is.na(tidy_soccer_data$venue))
+index_venue
+tidy_soccer_data$venue[index_venue]<-"Parc des Princes"
+
+
+index_date<-which(is.na(tidy_soccer_data$date))
+
+tidy_soccer_data$date[index_date]<-"06/08/19"
+
+
+completed_tidy_data<-tidy_soccer_data %>% mutate(date = replace_na(date,"06/08/19" ),
+                                                 venue = replace_na(venue,"Parc des Princes" ))
+names(which(colSums(is.na(completed_tidy_data))>0))
+
+completed_tidy_data2 <-completed_tidy_data %>% separate(pks, c("PKS_1","PKS_2"), sep='-')
+completed_tidy_data2
+
+```
+
+```{r Outliers}
+install.packages("ggplot2")
+library(ggplot2)
+
+''' ggplot(data = completed_tidy_data2, mapping = aes(x = venue, y = attendance)+
+         geom_boxplot()+
+         geom_jitter(color = "blue", size = 0.5)+
+         theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+```
+
+
+
